@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan - Donghua App</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --accent: #ff6b6b;
+            --text-gray: #a0a0ba;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            padding: 20px;
+        }
+        .settings-container { max-width: 500px; margin: 0 auto; }
+        .setting-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; color: var(--text-gray); margin-bottom: 5px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn-save { background: #4e54c8; color: white; }
+        .btn-clear { background: var(--accent); color: white; }
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .back-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="settings-container">
+        <div class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h2 style="margin: 0;">Pengaturan</h2>
+        </div>
+
+        <div class="setting-card">
+            <h4 style="margin-top: 0; color: #ff6b6b;">Konfigurasi API</h4>
+            <div class="form-group">
+                <label>Base API URL</label>
+                <input type="text" id="api-url-input" placeholder="http://example.com/api.php">
+            </div>
+            <div class="form-group">
+                <label>API Token</label>
+                <input type="text" id="api-token-input" placeholder="Masukkan Token">
+            </div>
+            <button class="btn btn-save" onclick="saveSettings()">Simpan Konfigurasi</button>
+        </div>
+
+        <div class="setting-card">
+            <h4 style="margin-top: 0;">Data & Cache</h4>
+            <p style="font-size: 0.8rem; color: var(--text-gray);">Hapus data sementara untuk memperbarui daftar donghua secara paksa.</p>
+            <button class="btn btn-clear" onclick="handleClearCache()">Bersihkan Cache / Refresh Data</button>
+        </div>
+    </div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script>
+        // Load data saat ini ke dalam input
+        document.getElementById('api-url-input').value = BASE_API;
+        document.getElementById('api-token-input').value = API_TOKEN;
+
+        function saveSettings() {
+            const newUrl = document.getElementById('api-url-input').value;
+            const newToken = document.getElementById('api-token-input').value;
+
+            if (!newUrl || !newToken) return alert("Data tidak boleh kosong!");
+
+            localStorage.setItem('custom_base_api', newUrl);
+            localStorage.setItem('custom_api_token', newToken);
+
+            alert("Konfigurasi berhasil disimpan! Halaman akan dimuat ulang.");
+            window.location.reload();
+        }
+
+        function handleClearCache() {
+            if (typeof window.forceClearAPICache === "function") {
+                const total = window.forceClearAPICache();
+                alert(total > 0 ? `Berhasil membersihkan ${total} cache.` : "Cache sudah bersih.");
+                window.location.reload();
+            } else {
+                alert("Fungsi pembersihan tidak ditemukan di api.js");
+            }
+        }
+    </script>
+</body>
+</html>

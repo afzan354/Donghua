@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Donghua</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    /* Loading */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ff6b6b;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    #loading p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 1.2rem 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 107, 107, 0.3);
+      border-color: rgba(255, 107, 107, 0.6);
+      transform: translateX(-3px);
+    }
+
+    .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* Detail Section */
+    .detail-wrapper {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .detail-poster {
+      position: relative;
+    }
+
+    .detail-poster img {
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease;
+    }
+
+    .detail-poster:hover img {
+      transform: scale(1.05);
+    }
+
+    .detail-info {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .detail-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+      background: linear-gradient(45deg, #fff, #ffd93d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .detail-description {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.9);
+      margin-top: 1rem;
+    }
+
+    /* Episodes Section */
+    .episodes-section {
+      margin-top: 2rem;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(255, 107, 107, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .episodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .episode-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .episode-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .episode-card:hover::before {
+      left: 100%;
+    }
+
+    .episode-card:hover {
+      background: rgba(255, 107, 107, 0.3);
+      border-color: rgba(255, 107, 107, 0.6);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .episode-number {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffd93d;
+      position: relative;
+      z-index: 1;
+    }
+
+    .episode-date {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 0.3rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .detail-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .detail-poster img {
+        max-width: 300px;
+        margin: 0 auto;
+        display: block;
+      }
+
+      .episodes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .navbar {
+        padding: 1rem;
+      }
+
+      .navbar-brand {
+        font-size: 1.3rem;
+      }
+
+      .detail-title {
+        font-size: 1.5rem;
+      }
+
+      .detail-info {
+        padding: 1.5rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .episodes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+
+      .episode-number {
+        font-size: 1rem;
+      }
+
+      .episode-date {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Memuat detail anime...</p>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="javascript:history.back()" class="btn-back">
+      ← Kembali
+    </a>
+    <span class="navbar-brand">🎬 Detail Donghua</span>
+  </nav>
+
+  <!-- Container -->
+  <div class="container">
+    <!-- Detail Section -->
+    <div class="detail-wrapper">
+      <div class="detail-poster">
+        <img id="poster-img" src="assets/img/no-image.jpg" alt="Poster">
+      </div>
+      <div class="detail-info">
+        <h1 class="detail-title" id="title">Loading...</h1>
+        <p class="detail-description" id="description">Loading description...</p>
+      </div>
+    </div>
+
+    <!-- Episodes Section -->
+    <div class="episodes-section">
+      <h2 class="section-title">
+        📺 Daftar Episode
+      </h2>
+      <div class="episodes-grid" id="episodes-list">
+        <!-- Episodes will be loaded here -->
+      </div>
+      <div class="empty-state" id="empty-episodes" style="display: none;">
+        <div>📭</div>
+        <p style="margin-top: 1rem; font-size: 1.1rem; font-weight: 500;">Belum ada episode tersedia</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Episode akan ditambahkan segera</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Files -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/detail.js"></script>
+</body>
+</html>
